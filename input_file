@@ -1,0 +1,9 @@
+define mi_bloque as blocks;
+define b as BloCks;
+value 5 set out for mi_bloque;
+go straight till 5 blocks;
+go straight till 5+5 blocks;
+go straight till mi_bloque blocks;
+turn left;
+go straight;
+keep going;

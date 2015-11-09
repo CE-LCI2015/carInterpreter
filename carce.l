@@ -21,30 +21,43 @@ name			{letter}({digit}|{lowerdash}|{letter})*
 %%
 define			return DEFINE;
 as			return AS;
-blocks			return BLOCKS;
-value			return VALUE;
-set			return SET;
-out			return OUT;
-straight		return STRAIGHT;
-go			return GO;
-turn			return TURN;
-till			return TILL;
-back			return BACK;
-left			return LEFT;
-right			return RIGHT;
-going			return GOING;
-times			return TIMES;
 keep			return KEEP;
+going			return GOING;
 keepend			return KEEPEND;
 rest			return REST;
 for			return FOR;
 forend			return FOREND;
+when			return WHEN;
+whenend			return WHENEND;
+then			return THEN;
+till			return TILL;
+if			return IF;
+
+blocks			return BLOCKS;
+value			return VALUE;
+set			return SET;
+out			return OUT;
+
+go			return GO;
+turn			return TURN;
+
+straight		return STRAIGHT;
+back			return BACK;
+left			return LEFT;
+right			return RIGHT;
+
+times			return TIMES;
+
 start			return START;
 stop			return STOP;
 skip			return SKIP;
+on			return ON;
+off			return OFF;
 
-/;			return END;
+;			return END;
 
+\=			return EQU;
+!\=			return NEQU;
 \+			return ADD;
 \-			return SUB; 
 \*			return MUL;
@@ -56,7 +69,8 @@ skip			return SKIP;
 \]			return RIGHTB;
 {posnum}		{return NUMBER;}
 {name}			{return NAME;}
-
+{ws}			;
+\n			;
 
 %%
 

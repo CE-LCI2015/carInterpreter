@@ -20,12 +20,11 @@ instruction:
 		| instruction instructions END
 ;
 
-instructions : define
+instructions : 	  define
 		| setout 
 		| go
 		| turn
 		| keep
-		| for
 		| when
 		| rest
 		| if
@@ -37,14 +36,14 @@ instructions : define
 
 terminalexpression: NUMBER | NAME ;
 
-expression: 	 terminalexpression
+expression: 	  terminalexpression
 		| terminalexpression ADD terminalexpression
 		| terminalexpression SUB terminalexpression
 		| terminalexpression MUL terminalexpression
 		| terminalexpression DIV terminalexpression
 ;
 
-booleanexpression:	expression EQU expression
+booleanexpression:	  expression EQU expression
 			| expression NEQU expression
 ;
 
@@ -56,12 +55,12 @@ ydirection: STRAIGHT | BACK;
 
 xdirection: LEFT | RIGHT;
 
-go: 	GO ydirection
+go: 	  GO ydirection
 	| GO ydirection TILL expression BLOCKS;
 
 turn: TURN xdirection;
 
-if: IF booleanexpression THEN instruction 
+if: IF booleanexpression THEN instruction
 ;
 
 keep: KEEP GOING instruction IF booleanexpression THEN SKIP END instruction KEEPEND

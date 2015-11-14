@@ -6,7 +6,7 @@
 #include <string.h>
 #include "SymTable.h"
 
-int defineVariable(char *name) {
+int defineVariable(char *name, char * type) {
     struct symbol * tmp = malloc(sizeof(struct symbol ));
     tmp->name = malloc(sizeof(char) * strlen(name));
     strcpy(tmp->name,name);
@@ -49,4 +49,18 @@ void* getVariable(char *name) {
         tmp = tmp->next;
     }
     return (void*) 0;
+}
+
+char* getType(char *name) {
+    struct symbol * tmp = head;
+    while(tmp)
+    {
+        if (!strcmp(tmp->name,name))
+        {
+
+            return  tmp->type;
+        }
+        tmp = tmp->next;
+    }
+    return "";
 }

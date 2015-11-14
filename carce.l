@@ -1,5 +1,6 @@
 %{
 #include "y.tab.h"
+#include <string.h>
 %}
 
 
@@ -67,8 +68,8 @@ off			return OFF;
 \)			return RIGHTP;
 \[			return LEFTB;
 \]			return RIGHTB;
-{posnum}		{return NUMBER;}
-{name}			{return NAME;}
+{posnum}		{yylval.number=atoi(yytext); return NUMBER;}
+{name}			{yylval.txt= malloc(sizeof(char) * strlen(yytext)); strcpy(yylval.txt, yytext); return NAME;}
 {ws}			;
 \n			;
 

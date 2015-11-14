@@ -8,7 +8,7 @@ const int LIGHT_PIN 1;
  * @param const int directionPin: FRONT_PIN or BACK_PIN
  * @param const int sidePin: LEFT_PIN or RIGHT_PIN
  */
-void turnB(const int directionPin, const int directionPin){
+void turn(const int directionPin, const int directionPin){
   digitalWrite(directionPin, HIGH);
   digitalWrite(sidePin, HIGH);
   delay(8000);

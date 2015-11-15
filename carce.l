@@ -33,6 +33,8 @@ whenend			return WHENEND;
 then			return THEN;
 till			return TILL;
 if			return IF;
+endif			return ENDIF;
+else			return ELSE;
 
 blocks			return BLOCKS;
 value			return VALUE;
@@ -54,9 +56,11 @@ stop			return STOP;
 skip			return SKIP;
 on			return ON;
 off			return OFF;
+print		return PRINT;
 
 ;			return END;
-
+\<			return LESS;
+\>			return BIG;
 \=			return EQU;
 !\=			return NEQU;
 \+			return ADD;

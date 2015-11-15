@@ -1,5 +1,14 @@
 define mi_bloque as blocks;
-define misbloques as BloCks;
-value 5+7 set out for mi_bloque;
-turn left;
-go straight till mi_bloque blocks;
+value 7 set out for mi_bloque;
+
+when mi_bloque!=0 then
+	if mi_bloque>0 then
+		value mi_bloque - 2 set out for mi_bloque;
+		print mi_bloque;
+	else 
+		value mi_bloque + 3 set out for mi_bloque;
+		print mi_bloque;
+		turn right;
+	endif;
+whenend;
+

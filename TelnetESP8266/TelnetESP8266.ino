@@ -35,13 +35,23 @@ void loop()
         // Add the final 0 to end the C string
         input[size] = 0;
     }
-  if(input!="" && input !="\n" &&input !="\r"){
-    println("Input:");
-    println(input);
-    println("End input");
+  if(strcmp(input, "")  && strcmp(input, "\n") &&strcmp(input, "\r1")){
     char* command = strtok(input,"$");
     int args = atoi(strtok(input,"$"));
-    printCommand(command,args);
+    if(!strcmp(command,"MOVE"))
+    {
+      Serial.print("\nMove ");
+      Serial.print(args);
+      Serial.print(" blocks\n");
+    }
+    else if(!strcmp(command,"LEFT"))
+    {
+      Serial.println("Turn Left")
+    }
+    else if(!strcmp(command,"RIGHT"))
+    {
+      Serial.println("Turn right")
+    }
   }
   
 }

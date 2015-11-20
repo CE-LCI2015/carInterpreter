@@ -43,22 +43,28 @@ void loop()
       Serial.print("\nMove ");
       Serial.print(args);
       Serial.print(" blocks\n");
+      received();
+      
     }
-    else if(!strcmp(command,"LEFT"))
+    else if(strcmp(command,"LEFT") == 0)
     {
       Serial.println("Turn Left")
+      received();
     }
-    else if(!strcmp(command,"RIGHT"))
+    else if(strcmp(command,"RIGHT") == 0)
     {
       Serial.println("Turn right")
+      received();
     }
-    else if(!strcmp(command,"ON"))
+    else if(strcmp(command,"ON") == 0)
     {
       digitalWrite( 12, HIGH)
+      received();
     }
-    else if(!strcmp(command,"OFF"))
+    else if(strcmp(command,"OFF") == 0)
     {
       digitalWrite( 12, LOW)
+      received();
     }
   }
   

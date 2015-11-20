@@ -2,13 +2,14 @@
 
 SoftwareSerial BT1(11, 10); // RX | TX
 
-String content = "";
-
+#define INPUT_SIZE 30
 #define FRONT_PIN 0
 #define BACK_PIN 1
 #define LEFT_PIN 2
 #define RIGHT_PIN 3
 #define LIGHT_PIN 1
+
+char input[INPUT_SIZE + 1];
 
 void setup(){ 
   
@@ -28,33 +29,35 @@ void setup(){
 
 void loop()
 {
-  int flag=1;
   if(BT1.available() > 0)
     {
-        content = BT1.readStringUntil('\r');
+        byte size =BT1.readBytes(input, INPUT_SIZE);
+        // Add the final 0 to end the C string
+        input[size] = 0;
     }
-  
-  if (content != "" && content != "\n") {
-    Serial.println(content);
+  if(input!=""){
+    char* command = strtok(input,"$");
+    int args = atoi(strtok(input,"$"));
+    printCommand(command,args);
   }
   
-  { if (flag==1){
-    
-    if ( content.indexOf("R") > 0 ) // Si P13 esta incluido en el string
-    { digitalWrite( 13, !digitalRead(13)) ;
-      Serial.println("Invirtiendo pin 13");
-      BT1.println("AT+CIPSEND=0,5\r");
-      delay(50);
-      BT1.print("REC\r\n");
-      flag=0;
-      delay(50);
-      BT1.flush();
-    }
-    
-   }
-  }
 }
-
+void printCommand(char*command, int args)
+{
+    Serial.print("\nCommand: ");
+    Serial.print(command);
+    Serial.print(", args:");
+    Serial.print(args);
+    Serial.print("\n");
+}
+void received()
+{
+    BT1.println("AT+CIPSEND=0,5\r");
+    delay(50);
+    BT1.print("REC\r\n");
+    delay(50);
+    BT1.flush();
+}
 String GetLineWIFI()
 { String S = "" ;
   if (BT1.available())

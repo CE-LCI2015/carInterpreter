@@ -35,7 +35,10 @@ void loop()
         // Add the final 0 to end the C string
         input[size] = 0;
     }
-  if(input!="" && input !="\n"){
+  if(input!="" && input !="\n" &&input !="\r"){
+    println("Input:");
+    println(input);
+    println("End input");
     char* command = strtok(input,"$");
     int args = atoi(strtok(input,"$"));
     printCommand(command,args);

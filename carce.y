@@ -8,8 +8,9 @@
 #define DINT(NAME,VAL)  void* NAME = malloc(sizeof(int)); *(int*)NAME = VAL;
 #define SINT(NAME,VAL)  *(int*)NAME = VAL;
 #define GINT(NAME) *(int*) NAME
+#define EXECUTE(INDEX) execute(p->opr.op[INDEX])
 #define YYDEBUG 0
-#define VERBOSE 1
+#define VERBOSE 0
 #define verbose(fmt, ...) \
 		do { if (VERBOSE) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 
@@ -40,17 +41,16 @@ int execute(nodeType *p);
 %start root
 %token DEFINE AS VALUE SET OUT STRAIGHT GO TURN TILL BACK LEFT RIGHT GOING TIMES RIGHTB ON OFF
 %token KEEP KEEPEND REST FOR FOREND START STOP SKIP END ADD SUB MUL DIV LEFTP RIGHTP LEFTB
-%token WHEN WHENEND THEN EQU NEQU ENDIF IF ELSE LESS BIG
+%token WHEN WHENEND THEN EQU NEQU ENDIF IF ELSE LESS BIG WALK
 %token PRINT
 %token <txt> NAME
 %token <number> NUMBER BLOCKS
 
 %type <number>  xdirection ydirection
-%type <nPtr> instructionaux instructions define terminalexpression expression setout turn if when
+%type <nPtr> instructionaux instructions define terminalexpression expression setout turn if when for keep go rest
 %%
 root:
 	| instruction 
-	|lol
 ;
 instruction: 
 		|instruction instructions END { execute($2);}
@@ -65,16 +65,14 @@ instructions : PRINT expression {$$ = opr(PRINT,1,$2);}
 		| turn {$$ = $1;}
 		| if {$$ = $1;}
 		| when {$$ = $1;}
-;
-lol:
- 
-		| go
-		| keep
-		| rest
-		| START
-		| STOP
-		| TURN ON
-		| TURN OFF
+		| for {$$ = $1;}
+		| keep {$$ = $1;}
+		| go {$$ = $1;}
+		| rest {$$ = $1;}
+		| START {$$ = opr(START,0);}
+		| STOP {$$ = opr(STOP,0);}
+		| TURN ON {$$ = opr(ON,0);}
+		| TURN OFF {$$ = opr(OFF,0);}
 
 ;
 
@@ -101,8 +99,8 @@ ydirection: STRAIGHT {$$ = 1;} | BACK {$$ = 0;} ;
 
 xdirection: LEFT {$$ = 0;} | RIGHT{$$ = 1;} ;
 
-go: 	  GO ydirection {verbose("Go %s\n",$2 ? "straight" : "back");}
-	| GO ydirection TILL expression BLOCKS {}
+go: 	  GO ydirection {$$ = opr(GO,1,con($2));}
+	| GO ydirection TILL expression BLOCKS {$$ = opr(GO,2,con($2),$4);}
 ;
 
 turn: TURN xdirection {$$ = opr(TURN,1,con($2));}
@@ -115,17 +113,21 @@ if: IF expression THEN instructionaux ENDIF {$$ = opr(IF,2,$2,$4);}
 when: WHEN expression THEN instructionaux WHENEND {$$ = opr(WHEN,2,$2,$4);}
 ;
 
-keep: KEEP GOING instructionaux IF expression THEN SKIP END instructionaux KEEPEND
+keep: KEEP GOING instructionaux IF expression THEN SKIP END ENDIF END instructionaux KEEPEND {$$ = opr(KEEP,3,$3,$5,$11);}
+	| KEEP GOING instructionaux SKIP END instructionaux KEEPEND {$$ = opr(KEEP,2,$3,$6);}
 ;
 
+for:  FOR expression TIMES LEFTB WALK expression NAME RIGHTB instructionaux FOREND {$$ = opr(FOR,4,$2,$6,id($7),$9);}
+; 
 
-
-
-rest: REST FOR expression;
-
+rest: REST FOR expression {$$ = opr(REST, 1, $3);}
+;
 %%
 
 int main(){
+	#if YYDEBUG
+		yydebug = 1;
+	#endif
 	yyin=fopen("input_file","r");
 	yyparse();
 	printf("Done!\n");
@@ -257,34 +259,66 @@ int execute(nodeType *p) {
 	case typeOpr:
 		switch(p->opr.oper) {
 			//case SKIP : return 0;
-			case BLOCKS: {execute(p->opr.op[0]); execute(p->opr.op[1]); return 0;}
-			case PRINT: return printf("Printing...\t%d\n",execute(p->opr.op[0]));
+			case BLOCKS: {EXECUTE(0); EXECUTE(1); return 0;}
+			case PRINT: return printf("Printing...\t%d\n",EXECUTE(0));
 			case DEFINE: return defineVariable(p->opr.op[0]->id.i,"");
 			case SET: 
 			{
 				void* val = malloc(sizeof(int)); 
-				*(int*)val = execute(p->opr.op[1]);
+				*(int*)val = EXECUTE(1);
 				return setVariable(p->opr.op[0]->id.i,val);
 			}
-			case ADD: return execute(p->opr.op[0]) + execute(p->opr.op[1]);
-			case SUB: return execute(p->opr.op[0]) - execute(p->opr.op[1]);
-			case MUL: return execute(p->opr.op[0]) * execute(p->opr.op[1]);
-			case DIV: return execute(p->opr.op[0]) / execute(p->opr.op[1]);
-			case NEQU: return execute(p->opr.op[0]) != execute(p->opr.op[1]);
-			case EQU: return execute(p->opr.op[0]) == execute(p->opr.op[1]);
-			case LESS: return execute(p->opr.op[0]) < execute(p->opr.op[1]);
-			case BIG: return execute(p->opr.op[0]) > execute(p->opr.op[1]);
-			case TURN: verbose("Turn %s\n",execute(p->opr.op[0]) ? "right" : "left"); return 0;
+			case ADD: return EXECUTE(0) + EXECUTE(1);
+			case SUB: return EXECUTE(0) - EXECUTE(1);
+			case MUL: return EXECUTE(0) * EXECUTE(1);
+			case DIV: return EXECUTE(0) / EXECUTE(1);
+			case NEQU: return EXECUTE(0) != EXECUTE(1);
+			case EQU: return EXECUTE(0) == EXECUTE(1);
+			case LESS: return EXECUTE(0) < EXECUTE(1);
+			case BIG: return EXECUTE(0) > EXECUTE(1);
+			case TURN: {verbose("Turn %s\n",EXECUTE(0) ? "right" : "left"); return 0;}
+			case GO:  {
+				if (p->opr.nops > 1)
+					verbose("Go %s\n",EXECUTE(0) ? "straight" : "back");
+				else verbose("Go %s %d blocks\n",EXECUTE(0) ? "straight" : "back",EXECUTE(1));
+				return 0;
+			}
+			
 			
 			case IF:
 			{
-				if (execute(p->opr.op[0]))
-					execute(p->opr.op[1]);
+				if (EXECUTE(0))
+					EXECUTE(1);
 				else if (p->opr.nops > 2)
-					execute(p->opr.op[2]);
+					EXECUTE(2);
 			return 0;
 			}
-			case WHEN:     while(execute(p->opr.op[0])) execute(p->opr.op[1]); return 0;
+			case WHEN:     while(EXECUTE(0)) EXECUTE(1); return 0;
+			
+			case FOR:
+			{
+				defineVariable(p->opr.op[2]->id.i,"");
+				
+				void* val = malloc(sizeof(int)); 
+				*(int*)val = EXECUTE(1);
+				setVariable(p->opr.op[2]->id.i,val);
+				
+				for (int i = 0; i<EXECUTE(0);i++)
+				{
+					execute(p->opr.op[3]);
+				}
+				return 0;
+			}
+			
+			case KEEP:
+			{	if (p->opr.nops== 2) return EXECUTE(0);
+				while(1)
+				{
+					EXECUTE(0);
+					if (EXECUTE(1)) break;
+					EXECUTE(2);
+				}
+			}
 			
 		}
 	}

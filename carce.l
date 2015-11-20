@@ -16,7 +16,7 @@ letter			{upper}|{lower}
 lowerdash		_
 ws			[ \t]+
 digit			[0-9]
-posnum			{digit}+
+posnum			-*{digit}+
 name			{letter}({digit}|{lowerdash}|{letter})*
 
 %%
@@ -37,6 +37,7 @@ endif			return ENDIF;
 else			return ELSE;
 
 blocks			return BLOCKS;
+walk				return WALK;
 value			return VALUE;
 set			return SET;
 out			return OUT;

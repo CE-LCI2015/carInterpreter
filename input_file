@@ -1,5 +1,6 @@
 define mi_bloque as blocks;
-value 7 set out for mi_bloque;
+define mi_bloque as blocks;
+value -7 set out for mi_bloque;
 
 when mi_bloque!=0 then
 	if mi_bloque>0 then
@@ -12,3 +13,15 @@ when mi_bloque!=0 then
 	endif;
 whenend;
 
+for 5 times [walk 3 steps]
+	value mi_bloque - 2 set out for mi_bloque;
+	print mi_bloque;
+	print steps;
+forend;
+
+keep going 
+	if mi_bloque=-10 then
+		skip;
+	endif;
+		print mi_bloque;
+keepend;

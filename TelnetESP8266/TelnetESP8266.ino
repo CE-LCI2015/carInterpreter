@@ -52,6 +52,14 @@ void loop()
     {
       Serial.println("Turn right")
     }
+    else if(!strcmp(command,"ON"))
+    {
+      digitalWrite( 12, HIGH)
+    }
+    else if(!strcmp(command,"OFF"))
+    {
+      digitalWrite( 12, LOW)
+    }
   }
   
 }

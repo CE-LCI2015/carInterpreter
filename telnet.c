@@ -45,6 +45,7 @@ int main(int argc , char *argv[])
             puts("Send failed");
             return 1;
         }
+        break;
 
         //Receive a reply from the server
         //if( recv(sock , server_reply , 2000 , 0) < 0  )

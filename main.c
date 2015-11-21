@@ -72,14 +72,25 @@ int main()
 
 
 void turnON() {
-    send(sock ,"ON",strlen("ON"),0);
+    send(sock ,"ON",2,0);
 }
 void turnOFF() {
-    send(sock ,"OFF",strlen("OFF"),0);
+    send(sock ,"OFF",2,0);
 }
 void turnRIGHT() {
-    send(sock ,"RI",strlen("RI"),0);
+    send(sock ,"RI",2,0);
 }
 void turnLEFT() {
-    send(sock ,"LE",strlen("LE"),0);
+    send(sock ,"LE",2,0);
+}
+
+void moveFORWARD(int blocks) {
+    char str [10]= "MF";
+    strcat(str,blocks);
+    send(sock ,str,strlen(str),0);
+}
+void moveBACK(int blocks) {
+    char str [10]= "MB";
+    strcat(str,blocks);
+    send(sock ,str,strlen(str),0);
 }

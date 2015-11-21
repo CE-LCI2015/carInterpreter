@@ -64,6 +64,24 @@ void loop()
       delay(50);
       BT1.flush();
     }
+    else if ( W.indexOf("Left") > 0) // Si P13 esta incluido en el string
+    { digitalWrite( 13,ON) ;
+      Serial.println("\nTurning Left");
+      BT1.println("AT+CIPSEND=0,4\r");
+      delay(50);
+      BT1.println("REC\n\r");
+      delay(50);
+      BT1.flush();
+    }
+    else if ( W.indexOf("Right") > 0) // Si P13 esta incluido en el string
+    { digitalWrite( 13,LOW) ;
+      Serial.println("\nTurning Right");
+      BT1.println("AT+CIPSEND=0,4\r");
+      delay(50);
+      BT1.println("REC\n\r");
+      delay(50);
+      BT1.flush();
+    }
     else if ( W.length() >1){
       //BT1.println(W);
       //BT1.println("AT+CIPSEND=0,5\r");

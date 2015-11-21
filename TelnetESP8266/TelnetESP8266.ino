@@ -22,7 +22,7 @@ void setup(){
   Serial.begin(9600);
   BT1.begin(9600);
   pinMode(13, OUTPUT);
-  pinMode(12, OUTPUT);
+
   delay(1500);
   SetUpWIFI() ;
 }
@@ -38,16 +38,16 @@ void loop()
     Serial.println(W);
     if(W.indexOf("MF")>=0)
     {
-      Serial.print("\nMove forwards");
-      Serial.print(W.substring(2).toInt());
+      Serial.print("\nMove forwards ");
+      Serial.print(W.substring(2));
       Serial.print(" blocks\n");
       received();
 
     }
     else if(W.indexOf("MB")>=0)
     {
-      Serial.print("\nMove backwards");
-      Serial.print(W.substring(2).toInt());
+      Serial.print("\nMove backwards ");
+      Serial.print(W.substring(2));
       Serial.print(" blocks\n");
       received();
 
@@ -64,12 +64,12 @@ void loop()
     }
     else if(W.indexOf("ON")>=0)
     {
-      digitalWrite( 12, HIGH);
+      digitalWrite( 13, HIGH);
       received();
     }
     else if(W.indexOf("OFF")>=0)
     {
-      digitalWrite( 12, LOW);
+      digitalWrite( 13, LOW);
       received();
     }
     W = " "; w = ' ';

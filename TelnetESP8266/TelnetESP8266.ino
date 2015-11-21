@@ -2,7 +2,6 @@
 
 SoftwareSerial BT1(11, 10); // RX | TX
 
-
 #define INPUT_SIZE 30
 #define FRONT_PIN 0
 #define BACK_PIN 1
@@ -10,90 +9,88 @@ SoftwareSerial BT1(11, 10); // RX | TX
 #define RIGHT_PIN 3
 #define LIGHT_PIN 1
 
-String B, C = "" ;
-char c = ' ' ;
-String W = "";
-char w ;
+String W; char w;
 
 void setup(){
+
   pinMode(FRONT_PIN, OUTPUT);
   pinMode(BACK_PIN, OUTPUT);
   pinMode(LEFT_PIN, OUTPUT);
   pinMode(RIGHT_PIN, OUTPUT);
   pinMode(LIGHT_PIN, OUTPUT);
 
-
   Serial.begin(9600);
   BT1.begin(9600);
   pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
   delay(1500);
   SetUpWIFI() ;
 }
 
 void loop()
 {
-  if (BT1.available()) // Lo que entra por WIFI - Serial
+  if (BT1.available()) // Lo que entra por WIFI
   { w = BT1.read() ;
-    W = W + w;
-    Serial.print(w); // Vamos montando un String con lo que entra
+    W.concat(w);
   }
-  if (Serial.available()) // Lo que entra por Serial - WIFI
-  { char s = Serial.read();
-    BT1.println(s);
-  }
-  if (w == '\n' || w == '\r') // Sin han pulsado intro
+  if (w == '\n' || w == '\r') // Si han pulsado intro
   {
-    //Serial.println("Se ha detectado un intro");
-    //Serial.println(W);
-    //Serial.println("========================");
-    if ( W.indexOf("ON") > 0 ) // Si P13 esta incluido en el string
-    { digitalWrite( 13, HIGH) ;
-      Serial.println("\nTurning ON");
-      BT1.println("AT+CIPSEND=0,4\r");
-      delay(50);
-      BT1.println("REC\n\r");
-      delay(50);
-      BT1.flush();
+    Serial.println(W);
+    if(W.indexOf("MF")>=0)
+    {
+      Serial.print("\nMove forwards");
+      Serial.print(W.substring(2).toInt());
+      Serial.print(" blocks\n");
+      received();
+
     }
-    else if ( W.indexOf("OFF") > 0) // Si P13 esta incluido en el string
-    { digitalWrite( 13,LOW) ;
-      Serial.println("\nTurning OFF");
-      BT1.println("AT+CIPSEND=0,4\r");
-      delay(50);
-      BT1.println("REC\n\r");
-      delay(50);
-      BT1.flush();
+    else if(W.indexOf("MB")>=0)
+    {
+      Serial.print("\nMove backwards");
+      Serial.print(W.substring(2).toInt());
+      Serial.print(" blocks\n");
+      received();
+
     }
-    else if ( W.indexOf("Left") > 0) // Si P13 esta incluido en el string
-    { digitalWrite( 13,ON) ;
-      Serial.println("\nTurning Left");
-      BT1.println("AT+CIPSEND=0,4\r");
-      delay(50);
-      BT1.println("REC\n\r");
-      delay(50);
-      BT1.flush();
+    else if(W.indexOf("LE")>=0)
+    {
+      Serial.println("Turn Left");
+      received();
     }
-    else if ( W.indexOf("Right") > 0) // Si P13 esta incluido en el string
-    { digitalWrite( 13,LOW) ;
-      Serial.println("\nTurning Right");
-      BT1.println("AT+CIPSEND=0,4\r");
-      delay(50);
-      BT1.println("REC\n\r");
-      delay(50);
-      BT1.flush();
+    else if(W.indexOf("RI")>=0)
+    {
+      Serial.println("Turn right");
+      received();
     }
-    else if ( W.length() >1){
-      //BT1.println(W);
-      //BT1.println("AT+CIPSEND=0,5\r");
-      //delay(50);
-      //BT1.println("ERRORC\r");
-      //delay(50);
-      BT1.flush();
+    else if(W.indexOf("ON")>=0)
+    {
+      digitalWrite( 12, HIGH);
+      received();
     }
-    W = "" ; w = ' ' ;
+    else if(W.indexOf("OFF")>=0)
+    {
+      digitalWrite( 12, LOW);
+      received();
+    }
+    W = " "; w = ' ';
   }
 }
-
+void printCommand(char*command, int args)
+{
+  Serial.print("\nCommand: ");
+  Serial.print(command);
+  Serial.print(", args:");
+  Serial.print(args);
+  Serial.print("\n");
+}
+void received()
+{
+  BT1.println("AT+CIPSEND=0,5\r");
+  delay(50);
+  BT1.print("REC\r\n");
+  delay(50);
+  BT1.flush();
+}
 String GetLineWIFI()
 { String S = "" ;
   if (BT1.available())

@@ -41,7 +41,7 @@ void loop()
   { char s = Serial.read();
     BT1.println(s);
   }
-  if (w == '\n' || w == '\r') // Sin han pulsado ino
+  if (w == '\n' || w == '\r') // Sin han pulsado intro
   {
     //Serial.println("Se ha detectado un intro");
     //Serial.println(W);

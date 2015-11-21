@@ -9,7 +9,7 @@ SoftwareSerial BT1(11, 10); // RX | TX
 #define RIGHT_PIN 3
 #define LIGHT_PIN 1
 
-char input[INPUT_SIZE + 1];
+String W; char w;
 
 void setup(){ 
   
@@ -29,45 +29,43 @@ void setup(){
 
 void loop()
 {
-  if(BT1.available() > 0)
-    {
-        byte size =BT1.readBytes(input, INPUT_SIZE);
-        // Add the final 0 to end the C string
-        input[size] = 0;
-    }
-  if(strcmp(input, "")  && strcmp(input, "\n") &&strcmp(input, "\r1")){
-    char* command = strtok(input,"$");
-    int args = atoi(strtok(input,"$"));
-    if(!strcmp(command,"MOVE"))
+  if (BT1.available()) // Lo que entra por WIFI 
+  { w = BT1.read() ;
+    W.concat(w);
+  }
+  if (w == '\n' || w == '\r') // Si han pulsado intro
+  {
+    Serial.println(W);
+    if(W.indexOf("MO")>=0)
     {
       Serial.print("\nMove ");
-      Serial.print(args);
+      Serial.print(W.substring(2).toInt());
       Serial.print(" blocks\n");
       received();
       
     }
-    else if(strcmp(command,"LEFT") == 0)
+    else if(W.indexOf("LE")>=0)
     {
-      Serial.println("Turn Left")
+      Serial.println("Turn Left");
       received();
     }
-    else if(strcmp(command,"RIGHT") == 0)
+    else if(W.indexOf("RI")>=0)
     {
-      Serial.println("Turn right")
+      Serial.println("Turn right");
       received();
     }
-    else if(strcmp(command,"ON") == 0)
+    else if(W.indexOf("ON")>=0)
     {
-      digitalWrite( 12, HIGH)
+      digitalWrite( 12, HIGH);
       received();
     }
-    else if(strcmp(command,"OFF") == 0)
+    else if(W.indexOf("OFF")>=0)
     {
-      digitalWrite( 12, LOW)
+      digitalWrite( 12, LOW);
       received();
     }
+    W = " "; w = ' ';
   }
-  
 }
 void printCommand(char*command, int args)
 {

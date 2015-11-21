@@ -12,7 +12,6 @@ int sock;
 int main()
 {
 
-
     ////////////////////////////7Telnet///////////////////////////
 
     struct sockaddr_in server;
@@ -38,12 +37,19 @@ int main()
     }
 
     puts("Connected\n");
+    moveFORWARD(4);
+
+
+
 
     //keep communicating with server
     while(1)
     {
+        moveBACK(5);
         printf("Enter message : ");
         scanf("%s" , message);
+
+
 
         //Send some data
         if( send(sock , message , strlen(message) , 0) < 0)
@@ -75,7 +81,7 @@ void turnON() {
     send(sock ,"ON",2,0);
 }
 void turnOFF() {
-    send(sock ,"OFF",2,0);
+    send(sock ,"OFF",3,0);
 }
 void turnRIGHT() {
     send(sock ,"RI",2,0);
@@ -85,12 +91,15 @@ void turnLEFT() {
 }
 
 void moveFORWARD(int blocks) {
-    char str [10]= "MF";
-    strcat(str,blocks);
-    send(sock ,str,strlen(str),0);
+    char output[10]="MF";
+    char str[10];
+    snprintf(str, 10, "%d", blocks);
+    send(sock ,strcat(output,str),strlen(strcat(output,str)),0);
 }
 void moveBACK(int blocks) {
-    char str [10]= "MB";
-    strcat(str,blocks);
-    send(sock ,str,strlen(str),0);
+    char output[10]="MB";
+    char str[10];
+    snprintf(str, 10, "%d", blocks);
+    send(sock ,strcat(output,str),strlen(strcat(output,str)),0);
 }
+

@@ -6,7 +6,7 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (car)
 
-add_executable (car  main.c )
+add_executable (car  main.c telnet.h)
 
 
 

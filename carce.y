@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "carStructs.h"
+#include "telnet.h"
 
 #define DINT(NAME,VAL)  void* NAME = malloc(sizeof(int)); *(int*)NAME = VAL;
 #define SINT(NAME,VAL)  *(int*)NAME = VAL;
@@ -11,15 +12,13 @@
 #define EXECUTE(INDEX) execute(p->opr.op[INDEX])
 #define YYDEBUG 0
 #define VERBOSE 0
-#define verbose(fmt, ...) \
-		do { if (VERBOSE) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
-
+#define verbose( ...) if (VERBOSE) fprintf(stderr, __VA_ARGS__)
+ 
 
 void yyerror (char *s);
 int yylex();
 extern int yylineno;
 extern FILE *yyin;
-
 
 
 struct symbol * head;
@@ -129,6 +128,7 @@ int main(){
 		yydebug = 1;
 	#endif
 	yyin=fopen("input_file","r");
+	if (!init())return -1;
 	yyparse();
 	printf("Done!\n");
 	return 0;
@@ -276,11 +276,48 @@ int execute(nodeType *p) {
 			case EQU: return EXECUTE(0) == EXECUTE(1);
 			case LESS: return EXECUTE(0) < EXECUTE(1);
 			case BIG: return EXECUTE(0) > EXECUTE(1);
-			case TURN: {verbose("Turn %s\n",EXECUTE(0) ? "right" : "left"); return 0;}
+			case TURN: {
+				if(EXECUTE(0))
+				{
+					turnRIGHT();
+					verbose("Turn right%d\n",0); 
+				}
+				else 
+				{
+				verbose("Turn left%d\n",0);
+				turnLEFT();
+				}
+				return 0;
+			}
 			case GO:  {
-				if (p->opr.nops > 1)
-					verbose("Go %s\n",EXECUTE(0) ? "straight" : "back");
-				else verbose("Go %s %d blocks\n",EXECUTE(0) ? "straight" : "back",EXECUTE(1));
+					if(EXECUTE(0))
+					{
+						if (p->opr.nops > 1)
+						{
+							int blocks = EXECUTE(1);
+							verbose("Go straight %d blocks",blocks);
+							moveFORWARD(blocks);
+						}
+						else 
+						{
+							verbose("Go straight");
+							moveFORWARD(-1);
+						}
+					}
+					else
+					{
+						if (p->opr.nops > 1)
+						{
+							int blocks = EXECUTE(1);
+							verbose("Go back %d blocks",blocks);
+							moveBACK(blocks);
+						}
+						else
+						{
+							verbose("Go back");
+							moveBACK(-1);
+						}
+					}
 				return 0;
 			}
 			
@@ -319,7 +356,16 @@ int execute(nodeType *p) {
 					EXECUTE(2);
 				}
 			}
-			
+			case START:
+				return 0;
+			case STOP:
+				return 0;
+			case ON:
+				turnON();
+				verbose("Turn Lights ON\n");
+			case OFF:
+				turnOFF();
+				verbose("Turn Lights OFF\n");
 		}
 	}
 	return 0;

@@ -136,10 +136,12 @@ void moveBACK(int blocks) {
     strcat(output,str);
     send(sock ,output,strlen(output),0);
 }
- void delay(){
-     int c = 1, d = 1;
 
-     for ( c = 1 ; c <= 10000 ; c++ )
-         for ( d = 1 ; d <= 10000 ; d++ )
-         {}
- }
+
+void delay(){
+ int c = 1, d = 1;
+
+ for ( c = 1 ; c <= 10000 ; c++ )
+     for ( d = 1 ; d <= 10000 ; d++ )
+     {}
+}

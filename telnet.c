@@ -1,22 +1,39 @@
-/*
-    C ECHO client example using sockets
-*/
-#include<stdio.h> //printf
-#include<string.h>    //strlen
-#include<sys/socket.h>    //socket
-#include<arpa/inet.h> //inet_addr
+//
+// Created by Pablo Rodriguez Quesada on 11/13/15.
+//
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>    //strlen
+#include <sys/socket.h>    //socket
+#include <arpa/inet.h> //inet_addr
 
-int main(int argc , char *argv[])
+int sock;
+
+int receive()
 {
-    int sock;
+    char  server_reply[100];
+    if( recv(sock , server_reply , 2000 , 0) < 0  )
+    {
+        puts("recv failed");
+        return -1;
+
+    }
+    return strcmp(server_reply,"REC");
+}
+
+int init()
+{
+
+    ////////////////////////////Telnet///////////////////////////
+
     struct sockaddr_in server;
-    char message[1000] , server_reply[2000];
 
     //Create socket
     sock = socket(AF_INET , SOCK_STREAM , 0);
     if (sock == -1)
     {
         printf("Could not create socket");
+        return 1;
     }
     puts("Socket created");
 
@@ -33,30 +50,52 @@ int main(int argc , char *argv[])
 
     puts("Connected\n");
 
-    //keep communicating with server
-    while(1)
-    {
-        printf("Enter message : ");
-        scanf("%s" , message);
-
-        //Send some data
-        if( send(sock , message , strlen(message) , 0) < 0)
-        {
-            puts("Send failed");
-            return 1;
-        }
-
-        //Receive a reply from the server
-        if( recv(sock , server_reply , 2000 , 0) < 0  )
-        {
-            puts("recv failed");
-
-        }
-        puts("Server reply :");
-        puts(server_reply);
-
-    }
-
-    close(sock);
     return 0;
+
+}
+
+
+int turnON() {
+    send(sock ,"ON",2,0);
+    return receive();
+}
+int turnOFF() {
+    send(sock ,"OFF",3,0);
+    return receive();
+}
+int turnRIGHT() {
+    send(sock ,"RI",2,0);
+    return receive();
+}
+int turnLEFT() {
+    send(sock ,"LE",2,0);
+    return receive();
+}
+
+int moveFORWARD(int blocks) {
+    char output[10]="MF";
+    char str[10];
+    snprintf(str, 10, "%d", blocks);
+    strcat(output,str);
+    send(sock ,output ,strlen(output), 0);
+    return receive();
+}
+int moveBACK(int blocks) {
+    char output[10]="MB";
+    char str[10];
+    snprintf(str, 10, "%d", blocks);
+    strcat(output,str);
+    send(sock ,output,strlen(output),0);
+    return receive();
+}
+
+
+
+
+void delay(){
+    int c = 1, d = 1;
+
+    for ( c = 1 ; c <= 10000 ; c++ )
+        for ( d = 1 ; d <= 10000 ; d++ )
+        {}
 }

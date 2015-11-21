@@ -8,25 +8,8 @@
 #include <arpa/inet.h> //inet_addr
 
 
-#include "SymTable.h"
-#define DINT(NAME,VAL)  void* NAME = malloc(sizeof(int)); *(int*)NAME = VAL;
-#define SINT(NAME,VAL)  *(int*)NAME = VAL;
-#define GINT(NAME) *(int*) NAME
-int main ()
+int main(int argc , char *argv[])
 {
-    defineVariable("hola");
-    DINT (num, 5)
-    setVariable("hola",num);
-    SINT (num , 7)
-    printf("%d", GINT(getVariable("hola")) );
-    defineVariable("hol");
-    DINT (nu, 5)
-    setVariable("hol",nu);
-    printf("%d", GINT(getVariable("hol")) );
-    defineVariable("ho");
-    DINT (n, 4)
-    setVariable("ho",n);
-    printf("%d", GINT(getVariable("ho")) );
 
 
     ////////////////////////////7Telnet///////////////////////////

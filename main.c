@@ -81,7 +81,7 @@ void turnON() {
     send(sock ,"ON",2,0);
 }
 void turnOFF() {
-    send(sock ,"OFF",3,0);
+    send(sock ,"OF",2,0);
 }
 void turnRIGHT() {
     send(sock ,"RI",2,0);
@@ -94,12 +94,14 @@ void moveFORWARD(int blocks) {
     char output[10]="MF";
     char str[10];
     snprintf(str, 10, "%d", blocks);
-    send(sock ,strcat(output,str),strlen(strcat(output,str)),0);
+    strcat(output,str);
+    send(sock ,output ,strlen(output), 0);
 }
 void moveBACK(int blocks) {
     char output[10]="MB";
     char str[10];
     snprintf(str, 10, "%d", blocks);
-    send(sock ,strcat(output,str),strlen(strcat(output,str)),0);
+    strcat(output,str);
+    send(sock ,output,strlen(output),0);
 }
 

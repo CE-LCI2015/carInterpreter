@@ -7,13 +7,14 @@
 #include <sys/socket.h>    //socket
 #include <arpa/inet.h> //inet_addr
 
+int sock;
 
-int main(int argc , char *argv[])
+int main()
 {
 
 
     ////////////////////////////7Telnet///////////////////////////
-    int sock;
+
     struct sockaddr_in server;
     char message[1000] , server_reply[2000];
 
@@ -62,7 +63,23 @@ int main(int argc , char *argv[])
 
     }
 
+
+
     //close(sock); // Da error si se deja sin comentar
     return 0;
 
+}
+
+
+void turnON() {
+    send(sock ,"ON",strlen("ON"),0);
+}
+void turnOFF() {
+    send(sock ,"OFF",strlen("OFF"),0);
+}
+void turnRIGHT() {
+    send(sock ,"RI",strlen("RI"),0);
+}
+void turnLEFT() {
+    send(sock ,"LE",strlen("LE"),0);
 }

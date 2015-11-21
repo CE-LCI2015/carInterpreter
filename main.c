@@ -37,17 +37,49 @@ int main()
     }
 
     puts("Connected\n");
-    moveFORWARD(4);
 
 
 
 
+    int i=0;
     //keep communicating with server
     while(1)
     {
-        moveBACK(5);
-        printf("Enter message : ");
-        scanf("%s" , message);
+        i++;
+        if(i==1){
+            moveFORWARD(5);
+            puts("Server reply :");
+            puts(server_reply);
+            i=2;
+            delay();
+        }
+
+        if(i==2){
+            moveBACK(25);
+            puts("Server reply :");
+            puts(server_reply);
+            i=3;
+            delay();
+        }
+        if(i==3){
+            turnON();
+            puts("Server reply :");
+            puts(server_reply);
+            i=4;
+            delay();
+        }
+        if(i==4){
+            turnOFF();
+            puts("Server reply :");
+            puts(server_reply);
+            delay();
+        }
+
+
+
+       printf("Enter message : ");
+       scanf("%s" , message);
+
 
 
 
@@ -81,7 +113,7 @@ void turnON() {
     send(sock ,"ON",2,0);
 }
 void turnOFF() {
-    send(sock ,"OF",2,0);
+    send(sock ,"OFF",3,0);
 }
 void turnRIGHT() {
     send(sock ,"RI",2,0);
@@ -104,4 +136,10 @@ void moveBACK(int blocks) {
     strcat(output,str);
     send(sock ,output,strlen(output),0);
 }
+ void delay(){
+     int c = 1, d = 1;
 
+     for ( c = 1 ; c <= 10000 ; c++ )
+         for ( d = 1 ; d <= 10000 ; d++ )
+         {}
+ }

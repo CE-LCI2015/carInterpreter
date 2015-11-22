@@ -41,14 +41,7 @@ int init()
     server.sin_family = AF_INET;
     server.sin_port = htons( 23 );
 
-    //Connect to remote server
-    if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
-    {
-        perror("connect failed. Error");
-        return 1;
-    }
 
-    puts("Connected\n");
 
     return 0;
 
@@ -99,3 +92,4 @@ void delay(){
         for ( d = 1 ; d <= 10000 ; d++ )
         {}
 }
+

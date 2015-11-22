@@ -5,14 +5,15 @@
 #include <string.h>
 #include "carStructs.h"
 #include "telnet.h"
+#include<stdio.h>
+#include<stdlib.h>
 
 #define DINT(NAME,VAL)  void* NAME = malloc(sizeof(int)); *(int*)NAME = VAL;
 #define SINT(NAME,VAL)  *(int*)NAME = VAL;
 #define GINT(NAME) *(int*) NAME
 #define EXECUTE(INDEX) execute(p->opr.op[INDEX])
 #define YYDEBUG 0
-#define VERBOSE 0
-#define verbose( ...) if (VERBOSE) fprintf(stderr, __VA_ARGS__)
+#define verbose( ...) if (verbosevar) fprintf(stderr, __VA_ARGS__)
  
 
 void yyerror (char *s);
@@ -23,6 +24,7 @@ extern FILE *yyin;
 
 struct symbol * head;
 struct symbol * tail;
+int 	verbosevar;
 
 int defineVariable(char* name, char* type);
 int setVariable(char* name, void* value);
@@ -41,7 +43,7 @@ int execute(nodeType *p);
 %token DEFINE AS VALUE SET OUT STRAIGHT GO TURN TILL BACK LEFT RIGHT GOING TIMES RIGHTB ON OFF
 %token KEEP KEEPEND REST FOR FOREND START STOP SKIP END ADD SUB MUL DIV LEFTP RIGHTP LEFTB
 %token WHEN WHENEND THEN EQU NEQU ENDIF IF ELSE LESS BIG WALK
-%token PRINT
+%token PRINT DELAY
 %token <txt> NAME
 %token <number> NUMBER BLOCKS
 
@@ -53,12 +55,14 @@ root:
 ;
 instruction: 
 		|instruction instructions END { execute($2);}
+		| instruction error
 ;
 
 instructionaux: {$$ = opr(SKIP,0);}
 		|instructionaux instructions END {$$ = opr(BLOCKS,2,$1,$2);}
 ;
 instructions : PRINT expression {$$ = opr(PRINT,1,$2);}
+		| DELAY expression {$$ = opr(DELAY,1,$2);}
 		| define {$$=$1;}
 		| setout {$$ = $1;}
 		| turn {$$ = $1;}
@@ -123,19 +127,41 @@ rest: REST FOR expression {$$ = opr(REST, 1, $3);}
 ;
 %%
 
-int main(){
+int main(int argc, char **argv){
+	delay(20000);
+	verbosevar = 0;
+	if (argc==3) 
+	{
+		if(!strcmp(argv[1], "-v"))
+		{
+			verbosevar = 1;
+			yyin=fopen(argv[2],"r");
+			if(yyin == NULL) return 1;
+		}
+		else {printf("Usage : \" %s input_file\" or \" %s \"\n",argv[0],argv[0]); return 1;}
+	}
+	else if(argc == 2)
+	{
+		
+		yyin=fopen(argv[1],"r");
+		if(yyin == NULL) return 1;
+	}
+	else if(argc > 3)
+	{
+		printf("Usage : \" %s input_file\" or \" %s \"\n",argv[0],argv[0]);
+		return 1;
+	}
 	#if YYDEBUG
 		yydebug = 1;
 	#endif
-	yyin=fopen("input_file","r");
-	if (!init())return -1;
+	if (init())return -1;
 	yyparse();
 	printf("Done!\n");
 	return 0;
 }
 void yyerror(char *s){
 	
-	printf("%s around line no %d\n",s, yylineno );
+	fprintf(stderr, "%s around line no %d\n",s, yylineno );
 	
 }
 
@@ -261,6 +287,7 @@ int execute(nodeType *p) {
 			//case SKIP : return 0;
 			case BLOCKS: {EXECUTE(0); EXECUTE(1); return 0;}
 			case PRINT: return printf("Printing...\t%d\n",EXECUTE(0));
+			case DELAY: {verbose("Delay\n");delay(); return 0;}
 			case DEFINE: return defineVariable(p->opr.op[0]->id.i,"");
 			case SET: 
 			{
@@ -280,11 +307,11 @@ int execute(nodeType *p) {
 				if(EXECUTE(0))
 				{
 					turnRIGHT();
-					verbose("Turn right%d\n",0); 
+					verbose("Turn right\n"); 
 				}
 				else 
 				{
-				verbose("Turn left%d\n",0);
+				verbose("Turn left\n");
 				turnLEFT();
 				}
 				return 0;
@@ -295,12 +322,12 @@ int execute(nodeType *p) {
 						if (p->opr.nops > 1)
 						{
 							int blocks = EXECUTE(1);
-							verbose("Go straight %d blocks",blocks);
+							verbose("Go straight %d blocks\n",blocks);
 							moveFORWARD(blocks);
 						}
 						else 
 						{
-							verbose("Go straight");
+							verbose("Go straight\n");
 							moveFORWARD(-1);
 						}
 					}
@@ -309,12 +336,12 @@ int execute(nodeType *p) {
 						if (p->opr.nops > 1)
 						{
 							int blocks = EXECUTE(1);
-							verbose("Go back %d blocks",blocks);
+							verbose("Go back %d blocks\n",blocks);
 							moveBACK(blocks);
 						}
 						else
 						{
-							verbose("Go back");
+							verbose("Go back\n");
 							moveBACK(-1);
 						}
 					}
@@ -355,17 +382,22 @@ int execute(nodeType *p) {
 					if (EXECUTE(1)) break;
 					EXECUTE(2);
 				}
+				return 0;
 			}
 			case START:
+				verbose("Start\n");
 				return 0;
 			case STOP:
+				verbose("Stop\n");
 				return 0;
 			case ON:
 				turnON();
 				verbose("Turn Lights ON\n");
+				return 0 ;
 			case OFF:
 				turnOFF();
 				verbose("Turn Lights OFF\n");
+				return 0;
 		}
 	}
 	return 0;

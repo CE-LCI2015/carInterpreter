@@ -1,3 +1,4 @@
+delay 10000;
 define mi_bloque as blocks;
 define mi_bloque as blocks;
 value -7 set out for mi_bloque;
@@ -10,6 +11,10 @@ when mi_bloque!=0 then
 		value mi_bloque + 3 set out for mi_bloque;
 		print mi_bloque;
 		turn right;
+		turn on;
+		turn off;
+		go straight;
+		go back;
 	endif;
 whenend;
 

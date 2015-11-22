@@ -1,5 +1,5 @@
-carCE: lex.yy.c y.tab.c
-	gcc -g lex.yy.c y.tab.c -o carCE
+carCE: lex.yy.c y.tab.c telnet.c
+	gcc -g lex.yy.c y.tab.c telnet.c -o carCE
 
 lex.yy.c: y.tab.c carce.l
 	lex carce.l

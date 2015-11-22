@@ -58,6 +58,7 @@ skip			return SKIP;
 on			return ON;
 off			return OFF;
 print		return PRINT;
+delay		return DELAY;
 
 ;			return END;
 \<			return LESS;

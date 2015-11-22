@@ -7,7 +7,7 @@ SoftwareSerial BT1(11, 10); // RX | TX
 #define BACK_PIN 1
 #define LEFT_PIN 2
 #define RIGHT_PIN 3
-#define LIGHT_PIN 1
+#define LIGHT_PIN 4
 
 String W; char w;
 
@@ -15,33 +15,34 @@ String W; char w;
  * @param const int directionPin: FRONT_PIN or BACK_PIN
  * @param const int sidePin: LEFT_PIN or RIGHT_PIN
  */
-void turn(const int sidePin){
+void turn(const int directionPin, const int sidePin){
+  digitalWrite(directionPin, HIGH);
   digitalWrite(sidePin, HIGH);
   delay(4000);
+  digitalWrite(directionPin, LOW);
   digitalWrite(sidePin, LOW);
 }
 
-/**@brief put the directionPin on HIGH
- * @param const int directionPin: BACK_PIN or FRONT_PIN
+/**@brief it movilizes a determined quantity of blocks
+ * @param const int directionPin: LEFT_PIN or RIGHT_PIN
+ * @param int blocks: a block means two seconds
  */
-void go(const int directionPin){
-  digitalWrite(!directionPin, LOW);
+void go(const int directionPin, int blocks){
   digitalWrite(directionPin, HIGH);
+  delay(blocks*2000);
+  digitalWrite(directionPin, LOW);
 } 
 
 /**@brief changes the light state
  * @param int state: HIGH or LOW
  */
-void chageLightState(int state){
-  digitalWrite(directionPin, state);
+void lights(int state){
+  digitalWrite(LIGHT_PIN, state);
 } 
 
-void stop(){
-  digitalWrite(FRONT_PIN, LOW);
-  digitalWrite(BACK_PIN, LOW);
-}
-
-void setup(){
+/**@brief initializes the pins
+*/
+void setup() {
   pinMode(FRONT_PIN, OUTPUT);
   pinMode(BACK_PIN, OUTPUT);
   pinMode(LEFT_PIN, OUTPUT);
@@ -66,35 +67,30 @@ void loop()
   if (w == '\n' || w == '\r') {
     Serial.println(W);
     if(W.indexOf("MF")>=0){
-      go(FRONT_PIN);
+      go(FRONT_PIN, W.substring(2).toInt());
       received();
     }
     else if(W.indexOf("MB")>=0){
-      go(BACK_PIN);
+      go(BACK_PIN, W.substring(2).toInt());
       received();
     }
     else if(W.indexOf("LE")>=0){
-      turn(LEFT_PIN);
+      turn(FRONT_PIN, LEFT_PIN);
       received();
     }
     else if(W.indexOf("RI")>=0){
-      turn(RIGHT_PIN);
+      turn(FRONT_PIN, RIGHT_PIN);
       received();
     }
     else if(W.indexOf("ON")>=0){
-      chageLightState(HIGH);
+      lights(HIGH);
       received();
     }
     else if(W.indexOf("OFF")>=0){
-      chageLightState(LOW);
+      lights(LOW);
       received();
     }
-    else if(W.indexOf("ST")>=0){
-      stop
-    }
     W = " "; w = ' ';
-  }else{
-    stop();
   }
 }
 

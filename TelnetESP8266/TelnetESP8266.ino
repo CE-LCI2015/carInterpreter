@@ -11,15 +11,43 @@ SoftwareSerial BT1(11, 10); // RX | TX
 
 String W; char w;
 
-void setup(){
+/**@brief goes back or forward but turning left or right
+ * @param const int directionPin: FRONT_PIN or BACK_PIN
+ * @param const int sidePin: LEFT_PIN or RIGHT_PIN
+ */
+void turn(const int sidePin){
+  digitalWrite(sidePin, HIGH);
+  delay(4000);
+  digitalWrite(sidePin, LOW);
+}
 
+/**@brief put the directionPin on HIGH
+ * @param const int directionPin: BACK_PIN or FRONT_PIN
+ */
+void go(const int directionPin){
+  digitalWrite(!directionPin, LOW);
+  digitalWrite(directionPin, HIGH);
+} 
+
+/**@brief changes the light state
+ * @param int state: HIGH or LOW
+ */
+void chageLightState(int state){
+  digitalWrite(directionPin, state);
+} 
+
+void stop(){
+  digitalWrite(FRONT_PIN, LOW);
+  digitalWrite(BACK_PIN, LOW);
+}
+
+void setup(){
   pinMode(FRONT_PIN, OUTPUT);
   pinMode(BACK_PIN, OUTPUT);
   pinMode(LEFT_PIN, OUTPUT);
   pinMode(RIGHT_PIN, OUTPUT);
   pinMode(LIGHT_PIN, OUTPUT);
 
-  Serial.begin(9600);
   BT1.begin(9600);
   pinMode(13, OUTPUT);
 
@@ -30,59 +58,46 @@ void setup(){
 void loop()
 {
   if (BT1.available()) // Lo que entra por WIFI
-  { w = BT1.read() ;
+  { 
+    w = BT1.read() ;
     W.concat(w);
   }
-  if (w == '\n' || w == '\r') // Si han pulsado intro
-  {
+  // Si han pulsado intro
+  if (w == '\n' || w == '\r') {
     Serial.println(W);
-    if(W.indexOf("MF")>=0)
-    {
-      Serial.print("\nMove forwards ");
-      Serial.print(W.substring(2));
-      Serial.print(" blocks\n");
-      received();
-
-    }
-    else if(W.indexOf("MB")>=0)
-    {
-      Serial.print("\nMove backwards ");
-      Serial.print(W.substring(2));
-      Serial.print(" blocks\n");
-      received();
-
-    }
-    else if(W.indexOf("LE")>=0)
-    {
-      Serial.println("Turn Left");
+    if(W.indexOf("MF")>=0){
+      go(FRONT_PIN);
       received();
     }
-    else if(W.indexOf("RI")>=0)
-    {
-      Serial.println("Turn right");
+    else if(W.indexOf("MB")>=0){
+      go(BACK_PIN);
       received();
     }
-    else if(W.indexOf("ON")>=0)
-    {
-      digitalWrite( 13, HIGH);
+    else if(W.indexOf("LE")>=0){
+      turn(LEFT_PIN);
       received();
     }
-    else if(W.indexOf("OFF")>=0)
-    {
-      digitalWrite( 13, LOW);
+    else if(W.indexOf("RI")>=0){
+      turn(RIGHT_PIN);
       received();
+    }
+    else if(W.indexOf("ON")>=0){
+      chageLightState(HIGH);
+      received();
+    }
+    else if(W.indexOf("OFF")>=0){
+      chageLightState(LOW);
+      received();
+    }
+    else if(W.indexOf("ST")>=0){
+      stop
     }
     W = " "; w = ' ';
+  }else{
+    stop();
   }
 }
-void printCommand(char*command, int args)
-{
-  Serial.print("\nCommand: ");
-  Serial.print(command);
-  Serial.print(", args:");
-  Serial.print(args);
-  Serial.print("\n");
-}
+
 void received()
 {
   BT1.println("AT+CIPSEND=0,5\r");
@@ -91,6 +106,7 @@ void received()
   delay(50);
   BT1.flush();
 }
+
 String GetLineWIFI()
 { String S = "" ;
   if (BT1.available())
@@ -104,8 +120,8 @@ String GetLineWIFI()
   }
 }
 
-void SetUpWIFI()
-{ String ordenes[] =
+void SetUpWIFI(){
+  String ordenes[] =
           {
                   "AT",
                   "AT+CWMODE=3",
@@ -115,11 +131,10 @@ void SetUpWIFI()
                   "END" // Para reconocer el fin de los comandos AT
           };
   int index = 0;
-  while (ordenes[index] != "END")
-  { BT1.println(ordenes[index++]);
-    while ( true)
-    { String s = GetLineWIFI();
-      if ( s != "") Serial.println(s);
+  while (ordenes[index] != "END"){ 
+    BT1.println(ordenes[index++]);
+    while (true){
+      String s = GetLineWIFI();
       if ( s.indexOf("no change") >=0)
         break;
       if ( s.indexOf("OK")>=0)
@@ -128,7 +143,6 @@ void SetUpWIFI()
         break;
       // if (millis()-T >10000) break;
     }
-    Serial.println("========");
   }
   //BT1.println("AT+CIFSR");
 

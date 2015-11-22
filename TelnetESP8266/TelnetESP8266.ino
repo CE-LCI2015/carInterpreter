@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial BT1(11, 10); // RX | TX
+SoftwareSerial BT1(11, 8); // RX | TX
 
 #define INPUT_SIZE 30
 #define FRONT_PIN 0
@@ -10,7 +10,7 @@ SoftwareSerial BT1(11, 10); // RX | TX
 #define LIGHT_PIN 4
 
 String W; char w;
-
+int start;
 /**@brief goes back or forward but turning left or right
  * @param const int directionPin: FRONT_PIN or BACK_PIN
  * @param const int sidePin: LEFT_PIN or RIGHT_PIN
@@ -28,17 +28,18 @@ void turn(const int directionPin, const int sidePin){
  * @param int blocks: a block means two seconds
  */
 void go(const int directionPin, int blocks){
+  digitalWrite(!directionPin, LOW);
   digitalWrite(directionPin, HIGH);
   delay(blocks*2000);
   digitalWrite(directionPin, LOW);
-} 
+}
 
 /**@brief changes the light state
  * @param int state: HIGH or LOW
  */
 void lights(int state){
   digitalWrite(LIGHT_PIN, state);
-} 
+}
 
 /**@brief initializes the pins
 */
@@ -48,30 +49,35 @@ void setup() {
   pinMode(LEFT_PIN, OUTPUT);
   pinMode(RIGHT_PIN, OUTPUT);
   pinMode(LIGHT_PIN, OUTPUT);
-
+  Serial.begin(9600);
   BT1.begin(9600);
   pinMode(13, OUTPUT);
 
   delay(1500);
-  SetUpWIFI() ;
+  SetUpWIFI();
+  start = 0;
 }
 
 void loop()
 {
   if (BT1.available()) // Lo que entra por WIFI
-  { 
+  {
     w = BT1.read() ;
     W.concat(w);
   }
   // Si han pulsado intro
   if (w == '\n' || w == '\r') {
     Serial.println(W);
-    if(W.indexOf("MF")>=0){
-      go(FRONT_PIN, W.substring(2).toInt());
+    if(W.indexOf("SA")>=0){
+      start = 1;
+      received();
+    }
+    else if(W.indexOf("MF")>=0){
+      go(FRONT_PIN,5);
       received();
     }
     else if(W.indexOf("MB")>=0){
-      go(BACK_PIN, W.substring(2).toInt());
+      go(BACK_PIN, 5);
       received();
     }
     else if(W.indexOf("LE")>=0){
@@ -127,7 +133,7 @@ void SetUpWIFI(){
                   "END" // Para reconocer el fin de los comandos AT
           };
   int index = 0;
-  while (ordenes[index] != "END"){ 
+  while (ordenes[index] != "END"){
     BT1.println(ordenes[index++]);
     while (true){
       String s = GetLineWIFI();
